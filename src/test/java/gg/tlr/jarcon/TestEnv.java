@@ -24,7 +24,6 @@ public final class TestEnv {
         final InetSocketAddress address = new InetSocketAddress(Inet4Address.getByName(IP), PORT);
         BF3Client client = new BF3Client(address, PASSWORD);
         client.connect().get();
-        client.login().get();
         return client;
     }
 

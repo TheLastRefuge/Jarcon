@@ -294,9 +294,9 @@ public abstract class JarconClient implements AutoCloseable {
     }
 
     private synchronized void doLogin(String password) throws ExecutionException, InterruptedException {
+        if (status == Status.LOGGED_IN) return;
         if (password == null) throw new IllegalStateException("No password set"); //Technically IAE but the parameter is always state
         if (status != Status.CONNECTED) throw new IllegalStateException("Client not connected");
-        if (status == Status.LOGGED_IN) return;
 
         final String salt = loginHashed().complete();
 
