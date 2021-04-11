@@ -7,6 +7,7 @@ import gg.tlr.jarcon.frostbite.FrostbiteVersion;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.net.SocketAddress;
 import java.util.List;
 
@@ -14,7 +15,11 @@ public class BF3Client extends FrostbiteClient {
 
     private final BF3EventHandler eventHandler = new BF3EventHandler();
 
-    public BF3Client(SocketAddress address, String password) {
+    public BF3Client(SocketAddress address) {
+        this(address, null);
+    }
+
+    public BF3Client(SocketAddress address, @Nullable String password) {
         super(address, password);
         getMetaHandler().registerListener(eventHandler);
     }

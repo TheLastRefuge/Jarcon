@@ -6,6 +6,7 @@ import gg.tlr.jarcon.core.JarconClient;
 import gg.tlr.jarcon.core.WordBuffer;
 
 import javax.annotation.CheckReturnValue;
+import javax.annotation.Nullable;
 import java.net.SocketAddress;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -19,7 +20,11 @@ import java.util.regex.Pattern;
 public abstract class FrostbiteClient extends JarconClient {
     public static final Predicate<String> PASSWORD_PREDICATE = Pattern.compile("[a-zA-Z0-9]{0,16}").asMatchPredicate();
 
-    public FrostbiteClient(SocketAddress address, String password) {
+    public FrostbiteClient(SocketAddress address) {
+        this(address, null);
+    }
+
+    public FrostbiteClient(SocketAddress address, @Nullable String password) {
         super(address, password);
     }
 
