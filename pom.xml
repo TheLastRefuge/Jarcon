@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>gg.tlr</groupId>
-    <artifactId>Jarcon</artifactId>
+    <artifactId>jarcon</artifactId>
     <version>1.0.0-BETA-1</version>
 
     <build>
@@ -29,6 +29,13 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/TheLastRefuge/Jarcon</url>
+        </repository>
+    </distributionManagement>
 
     <dependencies>
         <dependency>
