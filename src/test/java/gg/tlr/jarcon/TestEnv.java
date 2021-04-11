@@ -14,10 +14,10 @@ public final class TestEnv {
     public static final String  TEST_PLAYER = null;
 
     static {
-        Assertions.assertNotEquals(IP, null);
-        Assertions.assertNotEquals(PORT, null);
-        Assertions.assertNotEquals(PASSWORD, null);
-        Assertions.assertNotEquals(TEST_PLAYER, null);
+        Assertions.assertNotNull(IP);
+        Assertions.assertNotNull(PORT);
+        Assertions.assertNotNull(PASSWORD);
+        Assertions.assertNotNull(TEST_PLAYER);
     }
 
     public static BF3Client newClient() throws Exception {
