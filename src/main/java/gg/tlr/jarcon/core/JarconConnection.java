@@ -2,9 +2,6 @@ package gg.tlr.jarcon.core;
 
 import gg.tlr.jarcon.Util;
 import gg.tlr.jarcon.frostbite.FrostbiteError;
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMaps;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -14,6 +11,9 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -25,15 +25,15 @@ public class JarconConnection {
     private static final String OK_RESPONSE = "OK";
     private static final int MAX_PACKET_SIZE = 16384;
 
-    private final JarconClient             client;
-    private final SocketAddress            address;
-    private final Logger                   logger;
-    private final ExecutorService          executor;
-    private final Socket                   socket         = new Socket();
-    private final Thread                   readThread     = new ReadThread();
-    private final AtomicInteger            sequenceNumber = new AtomicInteger();
-    private final Int2ObjectMap<Action<?>> transactions   = Int2ObjectMaps.synchronize(new Int2ObjectArrayMap<>());
-    private final CompletableFuture<Void>  deathFuture    = new CompletableFuture<>();
+    private final JarconClient            client;
+    private final SocketAddress           address;
+    private final Logger                  logger;
+    private final ExecutorService         executor;
+    private final Socket                  socket         = new Socket();
+    private final Thread                  readThread     = new ReadThread();
+    private final AtomicInteger           sequenceNumber = new AtomicInteger();
+    private final Map<Integer, Action<?>> transactions   = Collections.synchronizedMap(new HashMap<>());
+    private final CompletableFuture<Void> deathFuture    = new CompletableFuture<>();
 
     private volatile boolean shutdown;
 
