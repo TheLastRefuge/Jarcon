@@ -13,9 +13,10 @@ public record PlayerInfo(String name,
                          int kills,
                          int deaths,
                          int score,
-                         int rank) {
+                         int rank,
+                         int ping) {
 
-    public static final int PARAMETER_COUNT = 8;
+    public static final int PARAMETER_COUNT = 9;
 
     public static PlayerInfo read(WordBuffer buffer) {
         return new PlayerInfo(
@@ -23,6 +24,7 @@ public record PlayerInfo(String name,
                 buffer.read(),
                 buffer.readInt(),
                 Squad.getById(buffer.readInt()),
+                buffer.readInt(),
                 buffer.readInt(),
                 buffer.readInt(),
                 buffer.readInt(),
