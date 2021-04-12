@@ -34,6 +34,7 @@ public enum FrostbiteError implements RemoteError {
     ACCESS_ERROR("AccessError"),
     INCOMPLETE_READ("IncompleteRead"),
     PLAYER_NOT_IN_LIST("PlayerNotInList"),
+    PLAYER_NOT_IN_SQUAD("PlayerNotInSquad"),
     INVALID_ID_TYPE("InvalidIdType"),
     INVALID_BAN_TYPE("InvalidBanType"),
     INVALID_TIME_STAMP("InvalidTimeStamp"),
