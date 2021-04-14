@@ -198,7 +198,7 @@ public abstract class JarconClient implements AutoCloseable {
         if (var.isClamped()) logger.warn("Discarding return value of clamped var");
 
         var.validate(value);
-        return action.new Void(true, var.getName());
+        return action.new Void(true, var.getName(), value);
     }
 
     @CheckReturnValue
