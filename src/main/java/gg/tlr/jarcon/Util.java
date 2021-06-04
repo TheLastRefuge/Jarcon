@@ -51,6 +51,7 @@ public final class Util {
     }
 
     public static InetSocketAddress parseIpPort(String ipPortPair) {
+        if(ipPortPair.isBlank()) return null;
         final String[] split = ipPortPair.split(":");
         return new InetSocketAddress(split[0], Integer.parseInt(split[1]));
     }

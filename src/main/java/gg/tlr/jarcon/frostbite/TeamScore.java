@@ -11,6 +11,8 @@ public record TeamScore(int teamId,
                         int target) {
 
     public static List<TeamScore> read(WordBuffer buffer) {
+        if(buffer.size() == 20) return null;
+
         final List<TeamScore> list = new ArrayList<>();
         final int entries = buffer.readInt();
         final int target = buffer.readInt(buffer.position() + entries);
