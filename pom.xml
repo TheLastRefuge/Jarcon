@@ -6,7 +6,7 @@
 
     <groupId>gg.tlr</groupId>
     <artifactId>jarcon</artifactId>
-    <version>1.0.0-BETA-4</version>
+    <version>1.0.0-BETA-5</version>
 
     <properties>
         <maven.compiler.source>16</maven.compiler.source>
