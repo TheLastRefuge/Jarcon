@@ -39,6 +39,7 @@ public abstract class FrostbiteClient extends JarconClient {
 
     @CheckReturnValue
     public Action<Void> eventsEnabled(boolean enabled) {
+        this.getSettings().eventsEnabled(enabled);
         return action.new Void(true, "admin.eventsEnabled", enabled);
     }
 

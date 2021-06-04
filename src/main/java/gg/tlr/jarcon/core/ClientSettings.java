@@ -7,6 +7,7 @@ public class ClientSettings {
     private volatile boolean shutdownHook         = true;
     private volatile boolean autoReconnect        = true;
     private volatile boolean logAllErrorResponses = true;
+    private volatile boolean eventsEnabled        = false;
 
     //In milliseconds
     private volatile long    retryDelay           = 250;
@@ -37,6 +38,14 @@ public class ClientSettings {
 
     public void logAllErrorResponses(boolean logAllErrorResponses) {
         this.logAllErrorResponses = logAllErrorResponses;
+    }
+
+    public boolean eventsEnabled() {
+        return eventsEnabled;
+    }
+
+    public void eventsEnabled(boolean enabled) {
+        this.eventsEnabled = enabled;
     }
 
     public long reconnectDelay() {
