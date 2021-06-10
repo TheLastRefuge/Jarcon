@@ -115,6 +115,12 @@ public abstract class FrostbiteClient extends JarconClient {
     }
 
     @CheckReturnValue
+    public Action<Void> shutdown() {
+        // Undocumented (thanks for nothing, DICE)
+        return action.new Void(true, "admin.shutDown");
+    }
+
+    @CheckReturnValue
     public Action<Integer> idleDuration(String name) {
         return action.new Integer(true, "player.idleDuration", name);
     }
