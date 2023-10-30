@@ -7,13 +7,14 @@ import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 @SuppressWarnings("unused")
 public abstract class Action<T> {
 
-    private static final Consumer<Throwable> DEFAULT_HANDLER = t -> Jarcon.getLogger().error("Action Exception", t);
+    private static final BiConsumer<Action<?>, Throwable> DEFAULT_HANDLER = (a, t) -> Jarcon.getLogger().error("Action Exception: {}", a, t);
 
     private final JarconClient client;
     private final String[]     words;
@@ -63,7 +64,7 @@ public abstract class Action<T> {
     }
 
     public CompletableFuture<T> queue() {
-        return queue(client.getSettings().logAllErrorResponses() ? DEFAULT_HANDLER : t -> {});
+        return queue(client.getSettings().logAllErrorResponses() ? t -> DEFAULT_HANDLER.accept(this, t) : t -> {});
     }
 
     public T complete() throws ExecutionException, InterruptedException {
@@ -91,7 +92,7 @@ public abstract class Action<T> {
                 if (t != null) error.accept(t);
                 else success.accept(s);
             } catch (RuntimeException e) {
-                DEFAULT_HANDLER.accept(new RuntimeException("Exception in consumer", e));
+                DEFAULT_HANDLER.accept(this, new RuntimeException("Exception in consumer", e));
             }
         });
 
