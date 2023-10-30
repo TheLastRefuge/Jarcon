@@ -21,7 +21,7 @@ public enum PingSite {
     }
 
     @Nullable
-    public static PingSite byId(String id) {
+    public static PingSite getById(String id) {
         for (PingSite value : values()) if (value.getId().equalsIgnoreCase(id)) return value;
         return null;
     }

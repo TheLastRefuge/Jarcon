@@ -281,7 +281,7 @@ public enum Country {
                 '}';
     }
 
-    public static Country byCode(@Nonnull String code) {
+    public static Country getByCode(@Nonnull String code) {
         if(!code.matches("^[A-Za-z]{2}$")) {
             throw new IllegalArgumentException("Invalid code: " + code);
         }

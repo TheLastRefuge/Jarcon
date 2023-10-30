@@ -55,9 +55,9 @@ public record BF3ServerInfo(String name,
                 buffer.read(Util::parseIpPort),
                 buffer.read(),
                 buffer.readBool(),
-                Region.getById(buffer.read()),
-                PingSite.byId(buffer.read()),
-                Country.byCode(buffer.read()),
+                buffer.read(Region::getById),
+                buffer.read(PingSite::getById),
+                buffer.read(Country::getByCode),
                 buffer.readBool()
         );
     }
