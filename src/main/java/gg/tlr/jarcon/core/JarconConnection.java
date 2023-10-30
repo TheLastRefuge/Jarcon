@@ -136,7 +136,7 @@ public class JarconConnection {
 
             final byte[] raw = packet.encode();
             if (raw.length <= MAX_PACKET_SIZE) {
-                logger.trace("Writing packet: %s".formatted(Arrays.toString(raw)));
+                logger.trace("Writing packet: %n%s".formatted(Util.generateHexDump(raw)));
                 socket.getOutputStream().write(raw);
             } else {
                 action.getFuture().completeExceptionally(new IllegalArgumentException("Packet too large"));
@@ -197,7 +197,7 @@ public class JarconConnection {
 
                     System.arraycopy(header, 0, packet, 0, Packet.HEADER_SIZE);
                     System.arraycopy(inputStream.readNBytes(remaining), 0, packet, Packet.HEADER_SIZE, remaining);
-                    logger.trace("Reading packet: %s".formatted(Arrays.toString(packet)));
+                    logger.trace("Reading packet: %n%s".formatted(Util.generateHexDump(packet)));
                     receive(Packet.decode(packet));
                 }
 

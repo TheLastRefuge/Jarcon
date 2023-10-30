@@ -7,6 +7,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
@@ -95,5 +96,31 @@ public final class Util {
     public static UUID parseGuid(String guid) {
         guid = guid.substring(3, 35).replaceFirst("(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)", "$1-$2-$3-$4-$5");
         return UUID.fromString(guid);
+    }
+
+    /**
+     * @author Christianuss
+     */
+    public static String generateHexDump(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        int size = bytes.length;
+        int width = 16;
+
+        for(int i = 0; i < size; i += width) {
+            sb.append(String.format("%04x", i)).append("\s".repeat(3));
+
+            for(int j = 0; j < width; j++) {
+                if(i + j < size) sb.append(String.format("%02x\s", bytes[i + j]));
+                else sb.append("\s".repeat(3));
+            }
+            sb.append("\s".repeat(2));
+
+            int length = Math.min(width, size - i);
+            String ascii = new String(bytes, i, length, StandardCharsets.US_ASCII);
+            sb.append(ascii.replaceAll("[^\\x21-\\x7E]", "."));
+
+            if(i + width < size) sb.append("\n");
+        }
+        return sb.toString();
     }
 }
