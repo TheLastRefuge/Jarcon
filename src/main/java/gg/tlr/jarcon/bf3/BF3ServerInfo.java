@@ -1,6 +1,7 @@
 package gg.tlr.jarcon.bf3;
 
 import gg.tlr.jarcon.Util;
+import gg.tlr.jarcon.core.Country;
 import gg.tlr.jarcon.core.WordBuffer;
 import gg.tlr.jarcon.frostbite.PingSite;
 import gg.tlr.jarcon.frostbite.ServerInfo;
@@ -29,7 +30,7 @@ public record BF3ServerInfo(String name,
                             boolean joinQueueEnabled,
                             String region,
                             PingSite closestPingSite,
-                            String country,
+                            Country country,
                             boolean matchMakingEnabled) implements ServerInfo {
 
     public static BF3ServerInfo parse(String... data) {
@@ -55,7 +56,7 @@ public record BF3ServerInfo(String name,
                 buffer.readBool(),
                 buffer.read(),
                 PingSite.byId(buffer.read()),
-                buffer.read(),
+                Country.byCode(buffer.read()),
                 buffer.readBool()
         );
     }

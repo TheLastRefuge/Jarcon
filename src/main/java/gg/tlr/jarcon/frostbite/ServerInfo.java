@@ -1,5 +1,7 @@
 package gg.tlr.jarcon.frostbite;
 
+import gg.tlr.jarcon.core.Country;
+
 import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.util.List;
@@ -24,6 +26,6 @@ public interface ServerInfo {
     boolean joinQueueEnabled();
     String region();
     PingSite closestPingSite();
-    String country();
+    Country country();
     boolean matchMakingEnabled();
 }
