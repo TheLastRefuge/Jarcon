@@ -1,7 +1,6 @@
 package gg.tlr.jarcon.core;
 
 import gg.tlr.jarcon.Util;
-import gg.tlr.jarcon.frostbite.FrostbiteClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,9 +92,6 @@ public abstract class JarconClient implements AutoCloseable {
                 synchronized (JarconClient.this) {
                     doConnect();
                     if (password != null) doLogin(password);
-                    if (settings.eventsEnabled() && this instanceof FrostbiteClient client) {
-                        client.eventsEnabled(true).complete();
-                    }
                 }
                 return null;
             } catch (IOException | ExecutionException | InterruptedException e) {
@@ -263,14 +259,6 @@ public abstract class JarconClient implements AutoCloseable {
                             case INVALID_PASSWORD_HASH, INVALID_PASSWORD, PASSWORD_NOT_SET -> delay = settings.reconnectLoginDelay();
                         }
                     }
-                }
-
-                try {
-                    if(settings.eventsEnabled() && this instanceof FrostbiteClient client) {
-                        client.eventsEnabled(true).complete();
-                    }
-                } catch(Exception e) {
-                    logger.error("Failed to enable events", e);
                 }
             }
 

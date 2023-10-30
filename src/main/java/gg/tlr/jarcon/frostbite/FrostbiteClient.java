@@ -1,9 +1,7 @@
 package gg.tlr.jarcon.frostbite;
 
 import gg.tlr.jarcon.bf3.BF3MaplistEntry;
-import gg.tlr.jarcon.core.Action;
-import gg.tlr.jarcon.core.JarconClient;
-import gg.tlr.jarcon.core.WordBuffer;
+import gg.tlr.jarcon.core.*;
 
 import javax.annotation.CheckReturnValue;
 import javax.annotation.Nullable;
@@ -13,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -26,6 +25,7 @@ public abstract class FrostbiteClient extends JarconClient {
 
     public FrostbiteClient(SocketAddress address, @Nullable String password) {
         super(address, password);
+        registerAutoEventsListener();
     }
 
     @CheckReturnValue
@@ -388,6 +388,26 @@ public abstract class FrostbiteClient extends JarconClient {
             }
 
             return list;
+        });
+    }
+
+    private void registerAutoEventsListener() {
+        getMetaHandler().registerListener(new EventHandler<>() {
+            @Override
+            protected void handle(Packet packet) {
+
+            }
+
+            @Override
+            protected void handle(Status previous, Status current) {
+                if(current == Status.LOGGED_IN && getSettings().eventsEnabled()) {
+                    try {
+                        eventsEnabled(true).complete();
+                    } catch (ExecutionException | InterruptedException e) {
+                        logger.error("Failed to enable events", e);
+                    }
+                }
+            }
         });
     }
 }
