@@ -2,29 +2,29 @@ package gg.tlr.jarcon.frostbite;
 
 import gg.tlr.jarcon.core.WordBuffer;
 
-public abstract class Subset {
+public sealed interface Subset permits Subset.All, Subset.Team, Subset.Squad, Subset.Player {
 
-    public abstract Type getType();
+    Type getType();
 
-    public abstract String[] serialize();
+    String[] serialize();
 
-    public static Subset all() {
+    static Subset all() {
         return All.INSTANCE;
     }
 
-    public static Team team(gg.tlr.jarcon.frostbite.Team team) {
+    static Team team(gg.tlr.jarcon.frostbite.Team team) {
         return new Team(team.getId());
     }
 
-    public static Squad squad(gg.tlr.jarcon.frostbite.Team team, gg.tlr.jarcon.frostbite.Squad squad) {
+    static Squad squad(gg.tlr.jarcon.frostbite.Team team, gg.tlr.jarcon.frostbite.Squad squad) {
         return new Squad(team.getId(), squad);
     }
 
-    public static Player player(String name) {
+    static Player player(String name) {
         return new Player(name);
     }
 
-    public static Subset read(WordBuffer buffer) {
+    static Subset read(WordBuffer buffer) {
         final Type type = Type.getById(buffer.read());
         return switch (type) {
             case ALL -> All.INSTANCE;
@@ -34,7 +34,7 @@ public abstract class Subset {
         };
     }
 
-    public static final class All extends Subset {
+    record All() implements Subset {
         private static final All INSTANCE = new All();
 
         @Override
@@ -48,12 +48,7 @@ public abstract class Subset {
         }
     }
 
-    public static final class Team extends Subset {
-        private final int team;
-
-        private Team(int team) {
-            this.team = team;
-        }
+    record Team(int team) implements Subset {
 
         public int getTeam() {
             return team;
@@ -70,14 +65,7 @@ public abstract class Subset {
         }
     }
 
-    public static final class Squad extends Subset {
-        private final int                           team;
-        private final gg.tlr.jarcon.frostbite.Squad squad;
-
-        private Squad(int team, gg.tlr.jarcon.frostbite.Squad squad) {
-            this.team = team;
-            this.squad = squad;
-        }
+    record Squad(int team, gg.tlr.jarcon.frostbite.Squad squad) implements Subset {
 
         public int getTeam() {
             return team;
@@ -98,12 +86,7 @@ public abstract class Subset {
         }
     }
 
-    public static final class Player extends Subset {
-        private final String name;
-
-        private Player(String name) {
-            this.name = name;
-        }
+    record Player(String name) implements Subset {
 
         public String getName() {
             return name;
@@ -120,7 +103,7 @@ public abstract class Subset {
         }
     }
 
-    public enum Type {
+    enum Type {
         ALL,
         TEAM,
         SQUAD,
