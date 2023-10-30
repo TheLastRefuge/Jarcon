@@ -7,13 +7,14 @@ import gg.tlr.jarcon.frostbite.Subset;
 import gg.tlr.jarcon.frostbite.TeamScore;
 
 import java.util.List;
+import java.util.UUID;
 
 @SuppressWarnings("unused")
 public interface BF3EventListener extends JarconListener {
 
     default void onAuthenticated(String name) { }
 
-    default void onJoin(String name, String guid) { }
+    default void onJoin(String name, UUID guid) { }
 
     default void onLeave(String name, PlayerInfo info) { }
 

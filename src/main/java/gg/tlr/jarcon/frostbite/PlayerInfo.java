@@ -1,13 +1,15 @@
 package gg.tlr.jarcon.frostbite;
 
+import gg.tlr.jarcon.Util;
 import gg.tlr.jarcon.core.Jarcon;
 import gg.tlr.jarcon.core.WordBuffer;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public record PlayerInfo(String name,
-                         String guid,
+                         UUID guid,
                          int teamId,
                          Squad squad,
                          int kills,
@@ -21,7 +23,7 @@ public record PlayerInfo(String name,
     public static PlayerInfo read(WordBuffer buffer) {
         return new PlayerInfo(
                 buffer.read(),
-                buffer.read(),
+                Util.parseGuid(buffer.read()),
                 buffer.readInt(),
                 Squad.getById(buffer.readInt()),
                 buffer.readInt(),

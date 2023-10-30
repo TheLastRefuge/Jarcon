@@ -9,10 +9,7 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Stream;
 
 //TODO Fetch snippets straight from StackOverflow
@@ -93,5 +90,10 @@ public final class Util {
         }
 
         return Collections.unmodifiableList(list);
+    }
+
+    public static UUID parseGuid(String guid) {
+        guid = guid.substring(3, 35).replaceFirst("(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)", "$1-$2-$3-$4-$5");
+        return UUID.fromString(guid);
     }
 }

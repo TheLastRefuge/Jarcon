@@ -1,5 +1,6 @@
 package gg.tlr.jarcon.bf3;
 
+import gg.tlr.jarcon.Util;
 import gg.tlr.jarcon.core.EventHandler;
 import gg.tlr.jarcon.core.Packet;
 import gg.tlr.jarcon.core.WordBuffer;
@@ -9,6 +10,7 @@ import gg.tlr.jarcon.frostbite.Subset;
 import gg.tlr.jarcon.frostbite.TeamScore;
 
 import java.util.List;
+import java.util.UUID;
 
 public class BF3EventHandler extends EventHandler<BF3EventListener> {
 
@@ -24,7 +26,7 @@ public class BF3EventHandler extends EventHandler<BF3EventListener> {
             }
             case "player.onJoin" -> {
                 final String name = buffer.read();
-                final String guid = buffer.read();
+                final UUID guid = Util.parseGuid(buffer.read());
 
                 dispatch(listener -> listener.onJoin(name, guid));
             }
