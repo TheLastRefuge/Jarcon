@@ -4,6 +4,7 @@ import gg.tlr.jarcon.Util;
 import gg.tlr.jarcon.core.Country;
 import gg.tlr.jarcon.core.WordBuffer;
 import gg.tlr.jarcon.frostbite.PingSite;
+import gg.tlr.jarcon.frostbite.Region;
 import gg.tlr.jarcon.frostbite.ServerInfo;
 import gg.tlr.jarcon.frostbite.TeamScore;
 
@@ -28,7 +29,7 @@ public record BF3ServerInfo(String name,
                             InetSocketAddress address,
                             String punkBusterVersion,
                             boolean joinQueueEnabled,
-                            String region,
+                            Region region,
                             PingSite closestPingSite,
                             Country country,
                             boolean matchMakingEnabled) implements ServerInfo {
@@ -54,7 +55,7 @@ public record BF3ServerInfo(String name,
                 buffer.read(Util::parseIpPort),
                 buffer.read(),
                 buffer.readBool(),
-                buffer.read(),
+                Region.getById(buffer.read()),
                 PingSite.byId(buffer.read()),
                 Country.byCode(buffer.read()),
                 buffer.readBool()

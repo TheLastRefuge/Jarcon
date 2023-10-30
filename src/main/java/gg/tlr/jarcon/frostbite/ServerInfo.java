@@ -24,7 +24,7 @@ public interface ServerInfo {
     InetSocketAddress address();
     String punkBusterVersion();
     boolean joinQueueEnabled();
-    String region();
+    Region region();
     PingSite closestPingSite();
     Country country();
     boolean matchMakingEnabled();
