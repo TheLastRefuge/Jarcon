@@ -6,6 +6,7 @@ public class ClientSettings {
 
     private volatile boolean shutdownHook         = true;
     private volatile boolean autoReconnect        = true;
+    private volatile boolean autoLogin            = true;
     private volatile boolean logAllErrorResponses = true;
     private volatile boolean eventsEnabled        = false;
 
@@ -15,6 +16,7 @@ public class ClientSettings {
     private volatile long    reconnectLoginDelay  = TimeUnit.SECONDS.toMillis(10);
     private volatile long    shutdownTimeout      = TimeUnit.SECONDS.toMillis(10);
     private volatile long    defaultActionTimeout = TimeUnit.SECONDS.toMillis(15);
+    private volatile long    awaitQuiescence      = TimeUnit.SECONDS.toMillis(5);
 
     public boolean shutdownHook() {
         return shutdownHook;
@@ -30,6 +32,14 @@ public class ClientSettings {
 
     public void autoReconnect(boolean autoReconnect) {
         this.autoReconnect = autoReconnect;
+    }    
+    
+    public boolean autoLogin() {
+        return autoLogin;
+    }
+
+    public void autoLogin(boolean autoLogin) {
+        this.autoLogin = autoLogin;
     }
 
     public boolean logAllErrorResponses() {
@@ -86,5 +96,13 @@ public class ClientSettings {
 
     public void defaultActionTimeout(long actionTimeout) {
         this.defaultActionTimeout = actionTimeout;
+    }
+
+    public long awaitQuiescence() {
+        return awaitQuiescence;
+    }
+
+    public void awaitQuiescence(long awaitQuiescence) {
+        this.awaitQuiescence = awaitQuiescence;
     }
 }

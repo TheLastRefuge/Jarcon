@@ -31,5 +31,5 @@ abstract class AbstractEventHandler<T> {
 
     protected abstract void handle(Packet packet);
 
-    protected abstract void handle(JarconClient.Status previous, JarconClient.Status current);
+    protected abstract void handle(JarconClient.State previous, JarconClient.State current);
 }

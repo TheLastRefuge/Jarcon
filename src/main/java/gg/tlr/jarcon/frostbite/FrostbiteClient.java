@@ -33,7 +33,7 @@ public abstract class FrostbiteClient extends JarconClient {
 
     @CheckReturnValue
     public Action<Collection<PlayerInfo>> listPlayers(Subset subset) {
-        return action.new Packet(false, isLoggedIn() ? "admin.listPlayers" : "listPlayers", subset.serialize())
+        return action.new Packet(false, isAuthenticated() ? "admin.listPlayers" : "listPlayers", subset.serialize())
                 .map(packet -> new WordBuffer(packet.data()).readComplex(PlayerInfo::readBlock));
     }
 
@@ -43,7 +43,6 @@ public abstract class FrostbiteClient extends JarconClient {
         return action.new Void(true, "admin.eventsEnabled", enabled);
     }
 
-    //TODO Change client password?
     @CheckReturnValue
     public Action<Void> adminPassword(String password) {
         if(!PASSWORD_PREDICATE.test(password)) throw new IllegalArgumentException("Password must be an alphanumeric string of length 0-16");
@@ -391,6 +390,15 @@ public abstract class FrostbiteClient extends JarconClient {
         });
     }
 
+    @Override
+    protected void report(ErrorResponseException e) {
+        if(e.getFrostbiteError() == FrostbiteError.LOGIN_REQUIRED) {
+            synchronized (stateMachine) {
+                if(getState() == State.AUTHENTICATED) stateMachine.set(State.AUTHENTICATING);
+            }
+        }
+    }
+
     private void registerAutoEventsListener() {
         getMetaHandler().registerListener(new EventHandler<>() {
             @Override
@@ -399,8 +407,8 @@ public abstract class FrostbiteClient extends JarconClient {
             }
 
             @Override
-            protected void handle(Status previous, Status current) {
-                if(current == Status.LOGGED_IN && getSettings().eventsEnabled()) {
+            protected void handle(State previous, State current) {
+                if(current == State.AUTHENTICATED && getSettings().eventsEnabled()) {
                     try {
                         eventsEnabled(true).complete();
                     } catch (ExecutionException | InterruptedException e) {

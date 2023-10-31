@@ -10,7 +10,6 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +28,8 @@ public class JarconConnection {
     private final SocketAddress           address;
     private final Logger                  logger;
     private final ExecutorService         executor;
+    private final Thread                  readThread;
     private final Socket                  socket         = new Socket();
-    private final Thread                  readThread     = new ReadThread();
     private final AtomicInteger           sequenceNumber = new AtomicInteger();
     private final Map<Integer, Action<?>> transactions   = Collections.synchronizedMap(new HashMap<>());
     private final CompletableFuture<Void> deathFuture    = new CompletableFuture<>();
@@ -42,6 +41,7 @@ public class JarconConnection {
         this.address = address;
         this.logger = client.getLogger();
         this.executor = Executors.newCachedThreadPool(new HandlingThreadFactory("Jarcon-Dispatch-%d"::formatted, (t, e) -> logger.error("Unhandled Exception", e)));
+        this.readThread = new ReadThread(client.getId());
     }
 
     public CompletableFuture<Void> getDeathFuture() {
@@ -55,38 +55,26 @@ public class JarconConnection {
         readThread.start();
     }
 
-    public synchronized void shutdown(boolean now) throws InterruptedException {
+    public synchronized void shutdown(long deadline) throws InterruptedException {
         logger.debug("Connection shutting down...");
         shutdown = true;
 
-        if (now) {
-            logger.debug("Connection discarding %d scheduled tasks".formatted(executor.shutdownNow().size()));
+        synchronized (transactions) {
+            logger.debug("Connection awaiting %d transactions".formatted(transactions.size()));
+            while (System.nanoTime() < deadline && !transactions.isEmpty()) {
+                transactions.wait(Math.max(0, System.nanoTime() - deadline));
+            }
 
             readThread.interrupt();
-            synchronized (transactions) {
+            executor.shutdown();
+            logger.debug("Connection awaiting scheduled tasks");
+            if(!executor.awaitTermination(Math.max(0, System.nanoTime() - deadline), TimeUnit.NANOSECONDS)) executor.shutdownNow();
+
+            if(!transactions.isEmpty()) {
                 logger.debug("Connection discarding %d transactions".formatted(transactions.size()));
                 cancelTransactions(new RuntimeException("Connection shut down"));
             }
-        } else {
-            synchronized (transactions) {
-                logger.debug("Connection awaiting %d transactions".formatted(transactions.size()));
-                while (!transactions.isEmpty()) {
-                    transactions.wait();
-                }
-                executor.shutdown();
-                logger.debug("Connection awaiting scheduled tasks");
-                if(!executor.awaitTermination(client.getSettings().shutdownTimeout(), TimeUnit.SECONDS)) {
-                    logger.warn("Connection executor termination timed out");
-                }
-            }
         }
-
-        /*
-        Socket reads are uninterruptible under most circumstances,
-        so the ReadThread usually dies by means of a SocketException.
-        But we may still sometimes catch the exit condition.
-         */
-        readThread.interrupt();
 
         try {
             socket.close();
@@ -166,8 +154,9 @@ public class JarconConnection {
                 if (status.equals(OK_RESPONSE)) executor.execute(() -> action.complete(packet));
                 else {
                     final ErrorResponseException e = ErrorResponseException.create(status);
-                    if(e.getFrostbiteError() == FrostbiteError.LOGIN_REQUIRED) logger.error("Secure Action sent unauthenticated: " + action.toString());
+                    if(e.getFrostbiteError() == FrostbiteError.LOGIN_REQUIRED) logger.error("Secure Action sent unauthenticated: " + action);
                     action.getFuture().completeExceptionally(e);
+                    client.report(e);
                 }
 
                 //Notification delayed to submit task before executor is shutdown
@@ -180,6 +169,11 @@ public class JarconConnection {
     }
 
     private class ReadThread extends Thread {
+
+        public ReadThread(int id) {
+            setName("ReadThread-%d".formatted(id));
+        }
+
         @Override
         public void run() {
             try {

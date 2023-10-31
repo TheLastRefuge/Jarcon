@@ -7,7 +7,7 @@ public class MetaHandler extends AbstractEventHandler<AbstractEventHandler<?>> {
     }
 
     @Override
-    protected void handle(JarconClient.Status previous, JarconClient.Status current) {
+    protected void handle(JarconClient.State previous, JarconClient.State current) {
         dispatch(listeners -> listeners.handle(previous, current));
     }
 
