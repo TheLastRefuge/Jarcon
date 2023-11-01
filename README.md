@@ -4,9 +4,8 @@
 
 ## Overview
 
-![](img/state_machine.png)
 The JarconClient lifecycle is implemented as a **state machine**. The current state is readable via `client.getState()`.
-
+<img width="1301" alt="state_machine" src="https://github.com/TheLastRefuge/Jarcon/assets/18089322/1a5a91d6-c1ae-44b3-bdd1-6e94a1994dad">
 Every client starts in the `DISCONNECTED` state, where a `client.connect()` call transitions into `CONNECTING`.
 In the `CONNECTING` state, a worker continually tries to reach the server every `client.getSettings().reconnectDelay()` milliseconds,
 until the `CONNECTED` state is reached. From thereon, either a `client.login()` call or `client.getSettings().autoLogin() == true` will cause another worker to try logging in (`AUTHENTICATING`), until finally reaching the `AUTHENTICATED` state, from which all actions are permitted.
@@ -20,20 +19,20 @@ Additionally, the client may be *closed* (see below), to prevent more actions fr
 ```java
 //Create client
 InetSocketAddress address = new InetSocketAddress(Inet4Address.getByName(IP), PORT);
-BF3Client client = new BF3Client(address, PASSWORD);
+        BF3Client client = new BF3Client(address, PASSWORD);
 
 //Configure
-client.getSettings.autoLogin(true);
-client.getSettings.shutdownTimeout(5000);
+        client.getSettings.autoLogin(true);
+        client.getSettings.shutdownTimeout(5000);
 
 //Connect
-client.connect(); //CompletableFuture<Void>
+        client.connect(); //CompletableFuture<Void>
 
-/* Commands may be queued here before future is completed */
+        /* Commands may be queued here before future is completed */
 
 //Once we are done, close client
 //Waiting for quiescence up to 5 seconds
-client.close();
+        client.close();
 ```
 
 ## Command Usage
@@ -46,20 +45,20 @@ client.serverInfo().queue() //CompletableFuture<BF3ServerInfo>
         .thenAccept(info -> System.out.println(info.name()));
 
 //Non-blocking with error handler
-client.serverInfo().queue(info -> System.out.println(info.name()), throwable -> {
-    if(throwable.getCause() instanceof ErrorResponseException ere) {
+        client.serverInfo().queue(info -> System.out.println(info.name()), throwable -> {
+        if(throwable.getCause() instanceof ErrorResponseException ere) {
         System.err.println(ere.getFrostbiteError());
-    }
-});
-        
+        }
+        });
+
 //Blocking
-try {
-    System.out.println(client.serverInfo().complete().name());
-} catch (ExecutionException e) {
-    if(e.getCause() instanceof ErrorResponseException ere) {
+        try {
+        System.out.println(client.serverInfo().complete().name());
+        } catch (ExecutionException e) {
+        if(e.getCause() instanceof ErrorResponseException ere) {
         System.err.println(ere.getFrostbiteError());
-    }
-} catch (InterruptedException e) {}
+        }
+        } catch (InterruptedException e) {}
 ```
 ## Event Usage
 To receive server events, use either `client.getSettings().eventsEnabled(true)` before connecting, or `client.eventsEnabled(true).queue()` thereafter. They are disabled by default to save bandwidth. Once events are enabled, you may register arbitrary listeners as such:
@@ -68,20 +67,20 @@ To receive server events, use either `client.getSettings().eventsEnabled(true)` 
 final BF3EventHandler handler = new BF3EventHandler();
 
 //The client's MetaHandler dispatches to all our EventHandlers like the one above
-client.getMetaHandler().registerListener(handler);
+        client.getMetaHandler().registerListener(handler);
 
 //Now we can register arbitrary listeners to our EventHandler
-handler.registerListener(new BF3EventListener() {
-    @Override
-    public void onJoin(String name, UUID guid) {
+        handler.registerListener(new BF3EventListener() {
+@Override
+public void onJoin(String name, UUID guid) {
         System.out.println(name + " joined the server!");
-    }
-    
-    @Override
-    public void onKill(String killer, String victim, String weapon, boolean headShot) {
+        }
+
+@Override
+public void onKill(String killer, String victim, String weapon, boolean headShot) {
         if(isAdmin(victim) && !isAdmin(killer)) client.kickPlayer(killer).queue(); // ( ͡° ͜ʖ ͡°)
-    }
-});
+        }
+        });
 ```
 
 ## Error Handling
