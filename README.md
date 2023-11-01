@@ -1,13 +1,39 @@
 # Jarcon
 
-**Jarcon** is a remote console client for Frostbite games, originally developed for *The Last Refuge*.<br>It implements the official DICE protocol specification found [here](https://github.com/TheLastRefuge/Jarcon/blob/dev/BF3%20PC%20Server%20Remote%20Administration%20Protocol.pdf) and is easily extensible for custom commands on [modded servers](https://veniceunleashed.net).
+**Jarcon** is a remote console client for Frostbite games, originally developed for *The Last Refuge*.<br>It implements the official DICE protocol specification found [here](https://github.com/TheLastRefuge/Jarcon/blob/dev/BF3%20PC%20Server%20Remote%20Administration%20Protocol.pdf) and is easily extensible for [modded servers](https://veniceunleashed.net).
 
+## Overview
+
+![](img/state_machine.png)
+The JarconClient lifecycle is implemented as a **state machine**. The current state is readable via `client.getState()`.
+
+Every client starts in the `DISCONNECTED` state, where a `client.connect()` call transitions into `CONNECTING`.
+In the `CONNECTING` state, a worker continually tries to reach the server every `client.getSettings().reconnectDelay()` milliseconds,
+until the `CONNECTED` state is reached. From thereon, either a `client.login()` call or `client.getSettings().autoLogin() == true` will cause another worker to try logging in (`AUTHENTICATING`), until finally reaching the `AUTHENTICATED` state, from which all actions are permitted.
+
+In the event of a network error, we fall back into `CONNECTING` to try and reconnect. Outstanding packets will complete exceptionally.
+
+If the server password changes (see `client.adminPassword(String)`), we have no choice but to return into `AUTHENTICATING`. Ideally, the password should be updated accordingly via `client.setPassword(String)`.
+
+Additionally, the client may be *closed* (see below), to prevent more actions from being queued when your application shuts down.
 ## Setup
 ```java
+//Create client
 InetSocketAddress address = new InetSocketAddress(Inet4Address.getByName(IP), PORT);
 BF3Client client = new BF3Client(address, PASSWORD);
+
+//Configure
+client.getSettings.autoLogin(true);
+client.getSettings.shutdownTimeout(5000);
+
+//Connect
 client.connect(); //CompletableFuture<Void>
-//Commands may be queued before future is completed
+
+/* Commands may be queued here before future is completed */
+
+//Once we are done, close client
+//Waiting for quiescence up to 5 seconds
+client.close();
 ```
 
 ## Command Usage
@@ -59,10 +85,9 @@ handler.registerListener(new BF3EventListener() {
 ```
 
 ## Error Handling
-All uncaught exceptions thrown within callbacks passed to non-blocking methods are forwarded to the bound SLF4J logger.
-<br>Same for uncaught exceptions in event listeners, or any other internal threads for that matter. If an exception was caused by the server, it is wrapped in an [`ErrorResponseException`](https://github.com/TheLastRefuge/Jarcon/blob/dev/src/main/java/gg/tlr/jarcon/core/ErrorResponseException.java) and potentially resolved to a [`FrostbiteError`](https://github.com/TheLastRefuge/Jarcon/blob/dev/src/main/java/gg/tlr/jarcon/frostbite/FrostbiteError.java).
+All uncaught exceptions thrown within callbacks passed to non-blocking methods are forwarded to the bound SLF4J logger. Same for uncaught exceptions in event listeners, or any other internal threads for that matter. If an exception was caused by the server, it is wrapped in an [`ErrorResponseException`](https://github.com/TheLastRefuge/Jarcon/blob/dev/src/main/java/gg/tlr/jarcon/core/ErrorResponseException.java) and potentially resolved to a [`FrostbiteError`](https://github.com/TheLastRefuge/Jarcon/blob/dev/src/main/java/gg/tlr/jarcon/frostbite/FrostbiteError.java).
 
-If you are running a modded server or discover undocumented frostbite errors, you may define additional ones like so:
+If you are running a modded server or discover undocumented frostbite errors, you may define new ones like so:
 ````java
 enum CustomError implements RemoteError {
     MY_MOD_ERROR("MyModError"),
