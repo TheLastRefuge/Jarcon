@@ -4,8 +4,8 @@
 
 ## Overview
 
-The JarconClient lifecycle is implemented as a **state machine**. The current state is readable via `client.getState()`.
-<img width="1301" alt="state_machine" src="https://github.com/TheLastRefuge/Jarcon/assets/18089322/1a5a91d6-c1ae-44b3-bdd1-6e94a1994dad">
+The JarconClient lifecycle is implemented as a **state machine**. Current state is readable via `client.getState()`.
+<img width="1278" alt="state_machine" src="https://github.com/TheLastRefuge/Jarcon/assets/18089322/194956a3-8aa3-4349-a737-3274347135ef">
 Every client starts in the `DISCONNECTED` state, where a `client.connect()` call transitions into `CONNECTING`.
 In the `CONNECTING` state, a worker continually tries to reach the server every `client.getSettings().reconnectDelay()` milliseconds,
 until the `CONNECTED` state is reached. From thereon, either a `client.login()` call or `client.getSettings().autoLogin() == true` will cause another worker to try logging in (`AUTHENTICATING`), until finally reaching the `AUTHENTICATED` state, from which all actions are permitted.
