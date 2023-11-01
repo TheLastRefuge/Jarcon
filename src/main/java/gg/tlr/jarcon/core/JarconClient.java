@@ -171,6 +171,10 @@ public abstract class JarconClient implements AutoCloseable {
         errorRegistry.values().removeIf(error -> error.getClass() == clazz);
     }
 
+    public RemoteError lookupError(String id) {
+        return errorRegistry.get(id);
+    }
+
     //region Commands
     //----------------------------------------------------------------------------------------------------
 

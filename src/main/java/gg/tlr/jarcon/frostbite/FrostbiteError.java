@@ -2,8 +2,6 @@ package gg.tlr.jarcon.frostbite;
 
 import gg.tlr.jarcon.core.RemoteError;
 
-import java.util.Optional;
-
 public enum FrostbiteError implements RemoteError {
 
     UNKNOWN(null),
@@ -13,7 +11,7 @@ public enum FrostbiteError implements RemoteError {
     INVALID_PASSWORD("InvalidPassword"),
     PASSWORD_NOT_SET("PasswordNotSet"),
     INVALID_PASSWORD_HASH("InvalidPasswordHash"),
-    INVALID_PLAYER_NAME("InvalidPlayerName"),
+    INVALID_PLAYER_NAME("InvalidPlayerNamexxxxxxxxxxxxxxxxxxx"),
     INVALID_TEAM("InvalidTeam"),
     INVALID_SQUAD("InvalidSquad"),
     EMPTY_SQUAD("EmptySquad"),
@@ -57,6 +55,7 @@ public enum FrostbiteError implements RemoteError {
         this.id = id;
     }
 
+    @Override
     public String getId() {
         return id;
     }
@@ -66,9 +65,9 @@ public enum FrostbiteError implements RemoteError {
         return "Frostbite";
     }
 
-    public static Optional<FrostbiteError> getById(String response) {
-        for (FrostbiteError value : values()) if (response.equals(value.getId())) return Optional.of(value);
+    public static FrostbiteError getById(String response) {
+        for (FrostbiteError value : values()) if (response.equals(value.getId())) return value;
 
-        return Optional.empty();
+        return null;
     }
 }

@@ -13,6 +13,7 @@ import java.nio.ByteOrder;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -153,7 +154,7 @@ public class JarconConnection {
             if (action != null) {
                 if (status.equals(OK_RESPONSE)) executor.execute(() -> action.complete(packet));
                 else {
-                    final ErrorResponseException e = ErrorResponseException.create(status);
+                    final ErrorResponseException e = createErrorResponse(status);
                     if(e.getFrostbiteError() == FrostbiteError.LOGIN_REQUIRED) logger.error("Secure Action sent unauthenticated: " + action);
                     action.getFuture().completeExceptionally(e);
                     client.report(e);
@@ -166,6 +167,12 @@ public class JarconConnection {
             } else logger.error("Unknown sequence number: %d".formatted(packet.sequence()));
 
         } else logger.error("Unhandled packet: %s".formatted(packet));
+    }
+
+    private ErrorResponseException createErrorResponse(String error) {
+        final RemoteError remoteError = Optional.<RemoteError>ofNullable(FrostbiteError.getById(error)).orElse(client.lookupError(error));
+        if(remoteError != null) return new ErrorResponseException(remoteError);
+        else return new ErrorResponseException(error);
     }
 
     private class ReadThread extends Thread {

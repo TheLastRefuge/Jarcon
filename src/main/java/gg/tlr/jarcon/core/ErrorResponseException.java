@@ -6,13 +6,13 @@ public class ErrorResponseException extends RuntimeException {
     private final String      id;
     private final RemoteError error;
 
-    private ErrorResponseException(String error) {
+    public ErrorResponseException(String error) {
         super("Unknown error: %s".formatted(error));
         this.id = error;
         this.error = FrostbiteError.UNKNOWN;
     }
 
-    private ErrorResponseException(RemoteError error) {
+    public ErrorResponseException(RemoteError error) {
         super(createExceptionMessage(error));
         if (error == FrostbiteError.UNKNOWN) throw new IllegalArgumentException("Must specify error message");
         this.id = error.getId();
@@ -29,12 +29,6 @@ public class ErrorResponseException extends RuntimeException {
 
     public FrostbiteError getFrostbiteError() {
         return error instanceof FrostbiteError fe ? fe : FrostbiteError.UNKNOWN;
-    }
-
-    public static ErrorResponseException create(String error) {
-        return FrostbiteError.getById(error)
-                .map(ErrorResponseException::new)
-                .orElseGet(() -> new ErrorResponseException(error));
     }
 
     private static String createExceptionMessage(RemoteError error) {
