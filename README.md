@@ -22,8 +22,8 @@ InetSocketAddress address = new InetSocketAddress(Inet4Address.getByName(IP), PO
 BF3Client client = new BF3Client(address, PASSWORD);
 
 //Configure
-client.getSettings.autoLogin(true);
-client.getSettings.shutdownTimeout(5000);
+client.getSettings().autoLogin(true);
+client.getSettings().shutdownTimeout(5000);
 
 //Connect
 client.connect(); //CompletableFuture<Void>
