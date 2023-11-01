@@ -28,7 +28,7 @@ public abstract class JarconClient implements AutoCloseable {
     private final Queue<Action<?>> writeQueue   = new LinkedList<>();
     private final WriteThread      writeThread  = new WriteThread(id);
     private final Thread           shutdownHook = new Thread(() -> {
-        if (getSettings().shutdownHook()) close(getSettings().awaitQuiescence());
+        if (getSettings().shutdownHook()) close(getSettings().shutdownTimeout());
     });
 
     private final Map<String, RemoteError> errorRegistry = new ConcurrentHashMap<>();
@@ -80,26 +80,39 @@ public abstract class JarconClient implements AutoCloseable {
     }
 
     public boolean isConnected() {
-        var state = getState();
-        return state == State.CONNECTED || state == State.AUTHENTICATED;
+        return switch (getState()) {
+            case CONNECTED, AUTHENTICATING, AUTHENTICATED -> true;
+            default -> false;
+        };
     }
 
     public boolean isAuthenticated() {
         return getState() == State.AUTHENTICATED;
     }
 
+    public boolean isClosed() {
+        return closed;
+    }
+
+    /**
+     * Closes the client permanently.
+     */
     @Override
     public void close() {
         try {
-            doClose(System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(getSettings().awaitQuiescence()));
+            doClose(System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(settings.shutdownTimeout()));
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void close(long awaitQuiescence) {
+    /**
+     * Closes the client permanently. Allows existing traffic to continue for specified timeout.
+     * @param timeout in milliseconds
+     */
+    public void close(long timeout) {
         if (closed) return;
-        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(awaitQuiescence);
+        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeout);
 
         try {
             while (System.nanoTime() < deadline && !closed) {
@@ -304,9 +317,6 @@ public abstract class JarconClient implements AutoCloseable {
                                     writeQueue.remove(action);
                                     writeQueue.notifyAll();
                                 }
-                            } else {
-                                //Connection died, wait for new one
-                                Thread.sleep(settings.retryDelay());
                             }
                         }
                         case CONNECTING, CONNECTED, AUTHENTICATING -> {
@@ -332,9 +342,6 @@ public abstract class JarconClient implements AutoCloseable {
                                     }
 
                                     break;
-                                } else {
-                                    //Connection died, wait for new one
-                                    Thread.sleep(getSettings().retryDelay());
                                 }
                             }
                         }
@@ -393,11 +400,14 @@ public abstract class JarconClient implements AutoCloseable {
                 if (value == State.DISCONNECTED) continue;
 
                 add(value, State.DISCONNECTED, () -> {
-                    taskExecutor.interrupt();
-                    try {
-                        taskExecutor.join();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
+                    if(taskExecutor != null) {
+                        taskExecutor.interrupt();
+
+                        try {
+                            taskExecutor.join();
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                     }
 
                     synchronized (writeQueue) {
@@ -410,7 +420,6 @@ public abstract class JarconClient implements AutoCloseable {
 
             //Connect
             for (State value : State.values()) {
-
                 add(value, State.CONNECTING, this::createConnectingTask);
             }
         }
@@ -447,7 +456,7 @@ public abstract class JarconClient implements AutoCloseable {
                             var pw = password;
                             while ((pw = password) == null) {
                                 logger.warn("Attempting to authenticate without password");
-                                Thread.sleep(2000);
+                                Thread.sleep(settings.reconnectDelay());
                             }
 
                             final String salt = loginHashed().complete();
@@ -496,7 +505,7 @@ public abstract class JarconClient implements AutoCloseable {
                                 Alternatively filter only login-relevant packets in WriteThread when connecting.
                                 */
                                 connection.shutdown(0);
-                                Thread.sleep(getSettings().reconnectDelay());
+                                Thread.sleep(settings.reconnectDelay());
                                 continue;
                             }
 
@@ -512,11 +521,11 @@ public abstract class JarconClient implements AutoCloseable {
                                 writeQueue.notifyAll();
                             }
 
-                            if (getSettings().autoLogin()) set(State.AUTHENTICATING);
+                            if (settings.autoLogin()) set(State.AUTHENTICATING);
                             return;
                         } catch (Exception e) {
                             logger.error("Failed to connect", e);
-                            Thread.sleep(getSettings().reconnectDelay());
+                            Thread.sleep(settings.reconnectDelay());
                         }
                     }
                 } catch (InterruptedException e) {

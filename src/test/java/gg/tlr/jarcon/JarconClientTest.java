@@ -37,7 +37,7 @@ public class JarconClientTest {
 
     @AfterAll
     public static void afterAll() throws Exception {
-        client.shutdown(false);
+        if(client != null) client.close();
     }
 
     @AfterEach
@@ -330,14 +330,9 @@ public class JarconClientTest {
     @Order(51)
     @Test
     public void restartRound() throws Exception {
-        int duration = 5;
-        getSleep(TimeUnit.SECONDS.toMillis(duration));
+        sleep(5);
         client.restartRound().complete();
         sleep(15);
-    }
-
-    private void getSleep(long l) throws InterruptedException {
-        Thread.sleep(l);
     }
 
     @Disabled
@@ -362,7 +357,7 @@ public class JarconClientTest {
         assertThrows(IllegalArgumentException.class, () -> client.setVar(BF3Vars.GAME_PASSWORD, "Test").complete());
         assertThrows(IllegalArgumentException.class, () -> client.setVarClamped(BF3Vars.IDLE_BAN_ROUNDS, 1).complete());
     }
-    
+
     private static void sleep(int seconds) throws InterruptedException {
         Thread.sleep(TimeUnit.SECONDS.toMillis(seconds));
     }

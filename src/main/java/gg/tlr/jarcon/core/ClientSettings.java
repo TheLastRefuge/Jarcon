@@ -11,12 +11,9 @@ public class ClientSettings {
     private volatile boolean eventsEnabled        = false;
 
     //In milliseconds
-    private volatile long    retryDelay           = 250;
     private volatile long    reconnectDelay       = TimeUnit.SECONDS.toMillis(5);
-    private volatile long    reconnectLoginDelay  = TimeUnit.SECONDS.toMillis(10);
     private volatile long    shutdownTimeout      = TimeUnit.SECONDS.toMillis(10);
     private volatile long    defaultActionTimeout = TimeUnit.SECONDS.toMillis(15);
-    private volatile long    awaitQuiescence      = TimeUnit.SECONDS.toMillis(5);
 
     public boolean shutdownHook() {
         return shutdownHook;
@@ -66,14 +63,6 @@ public class ClientSettings {
         this.reconnectDelay = reconnectDelay;
     }
 
-    public long reconnectLoginDelay() {
-        return reconnectLoginDelay;
-    }
-
-    public void reconnectLoginDelay(long reconnectLoginDelay) {
-        this.reconnectLoginDelay = reconnectLoginDelay;
-    }
-
     public long shutdownTimeout() {
         return shutdownTimeout;
     }
@@ -82,27 +71,11 @@ public class ClientSettings {
         this.shutdownTimeout = shutdownTimeout;
     }
 
-    public long retryDelay() {
-        return retryDelay;
-    }
-
-    public void retryDelay(long retryDelay) {
-        this.retryDelay = retryDelay;
-    }
-
     public long defaultActionTimeout() {
         return defaultActionTimeout;
     }
 
     public void defaultActionTimeout(long actionTimeout) {
         this.defaultActionTimeout = actionTimeout;
-    }
-
-    public long awaitQuiescence() {
-        return awaitQuiescence;
-    }
-
-    public void awaitQuiescence(long awaitQuiescence) {
-        this.awaitQuiescence = awaitQuiescence;
     }
 }
