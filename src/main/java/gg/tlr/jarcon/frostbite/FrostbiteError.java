@@ -11,7 +11,7 @@ public enum FrostbiteError implements RemoteError {
     INVALID_PASSWORD("InvalidPassword"),
     PASSWORD_NOT_SET("PasswordNotSet"),
     INVALID_PASSWORD_HASH("InvalidPasswordHash"),
-    INVALID_PLAYER_NAME("InvalidPlayerNamexxxxxxxxxxxxxxxxxxx"),
+    INVALID_PLAYER_NAME("InvalidPlayerName"),
     INVALID_TEAM("InvalidTeam"),
     INVALID_SQUAD("InvalidSquad"),
     EMPTY_SQUAD("EmptySquad"),
